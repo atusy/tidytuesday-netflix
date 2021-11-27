@@ -58,33 +58,37 @@ added_per_month <- netflix |>
   # titleごとにmonth_addedの最小値を集計
   dplyr::group_by(title) |>
   dplyr::summarize(month_added = min(month_added)) |>
+  # 2015年以降のタイトルのみを抽出
+  dplyr::filter(lubridate::year(month_added) >= 2015) |>
   # 月ごとに行数をカウント
   dplyr::count(month_added)
 
 dplyr::glimpse(added_per_month)
 ```
 
-    ## Rows: 101
+    ## Rows: 73
     ## Columns: 2
-    ## $ month_added <date> 2008-01-01, 2008-02-01, 2009-05-01, 2009-11-01, 2010-11-0…
-    ## $ n           <int> 1, 1, 1, 1, 1, 1, 1, 11, 1, 1, 1, 1, 1, 2, 3, 2, 2, 2, 2, …
+    ## $ month_added <date> 2015-01-01, 2015-02-01, 2015-03-01, 2015-04-01, 2015-05-0…
+    ## $ n           <int> 1, 4, 5, 5, 7, 7, 8, 2, 7, 15, 4, 23, 44, 16, 17, 22, 13, …
 
 ## 可視化
 
 ``` r
 ggplot2::ggplot(added_per_month) +
-  # 高さ1の棒グラフを使い色で件数を表現
-  ggplot2::geom_col(ggplot2::aes(x = month_added, y = 1, fill = n)) +
-  # NETFLIXと白字で記述
-  ggplot2::annotate(
-    "text", label = "NETFLIX", color = "white", size = 20,
-    x = as.Date(-Inf), y = Inf, hjust = -0.01, vjust = 1.1
+  # 高さ一定のタイルを使い色で件数を表現
+  ggplot2::geom_tile(
+    ggplot2::aes(x = month_added, y = 1, fill = n, width = 30)
   ) +
-  # 棒グラフの色を調整
+  # タイルの色を調整
   ggplot2::scale_fill_gradient(
     name = NULL,                 # 凡例のタイトルは不要
     low = "black", high = "red", # NETFLIXカラーにする
     limits = c(0L, NA_integer_)  # 最小値を0に固定、最大値をデータから決定
+  ) +
+  # NETFLIXと白字で記述
+  ggplot2::annotate(
+    "text", label = "NETFLIX", color = "white", size = 20,
+    x = as.Date(-Inf), y = Inf, hjust = -0.01, vjust = 1.1
   ) +
   # タイトル追加
   ggplot2::labs(title = "Number of New Titles Per Month") +

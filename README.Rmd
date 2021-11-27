@@ -3,6 +3,11 @@ title: "Netflix Titles"
 output: github_document
 ---
 
+```{r, include=FALSE}
+knitr::opts_chunk$set(dev = 'ragg_png', dpi = 180)
+```
+
+
 分析例
 
 - 月あたりの新作件数
@@ -45,6 +50,8 @@ added_per_month <- netflix |>
   # titleごとにmonth_addedの最小値を集計
   dplyr::group_by(title) |>
   dplyr::summarize(month_added = min(month_added)) |>
+  # 2015年以降のタイトルのみを抽出
+  dplyr::filter(lubridate::year(month_added) >= 2015) |>
   # 月ごとに行数をカウント
   dplyr::count(month_added)
 
@@ -55,18 +62,20 @@ dplyr::glimpse(added_per_month)
 
 ```{r monthly, fig.width=16/3, fig.height=9/3, warning=FALSE}
 ggplot2::ggplot(added_per_month) +
-  # 高さ1の棒グラフを使い色で件数を表現
-  ggplot2::geom_col(ggplot2::aes(x = month_added, y = 1, fill = n)) +
-  # NETFLIXと白字で記述
-  ggplot2::annotate(
-    "text", label = "NETFLIX", color = "white", size = 20,
-    x = as.Date(-Inf), y = Inf, hjust = -0.01, vjust = 1.1
+  # 高さ一定のタイルを使い色で件数を表現
+  ggplot2::geom_tile(
+    ggplot2::aes(x = month_added, y = 1, fill = n, width = 30)
   ) +
-  # 棒グラフの色を調整
+  # タイルの色を調整
   ggplot2::scale_fill_gradient(
     name = NULL,                 # 凡例のタイトルは不要
     low = "black", high = "red", # NETFLIXカラーにする
     limits = c(0L, NA_integer_)  # 最小値を0に固定、最大値をデータから決定
+  ) +
+  # NETFLIXと白字で記述
+  ggplot2::annotate(
+    "text", label = "NETFLIX", color = "white", size = 20,
+    x = as.Date(-Inf), y = Inf, hjust = -0.01, vjust = 1.1
   ) +
   # タイトル追加
   ggplot2::labs(title = "Number of New Titles Per Month") +
