@@ -3,6 +3,13 @@ title: "Netflix Titles"
 output: github_document
 ---
 
+分析例
+
+- 月あたりの新作件数
+- 国あたりの作品件数
+
+簡単のため同名別作品は区別しないものとする。
+
 # Load Data
 
 ```{r setup, include=FALSE}
