@@ -8,6 +8,12 @@ Netflix Titles
 
 簡単のため同名別作品は区別しないものとする。
 
+renvパッケージをインストールしてから実行すること。
+
+``` r
+install.packages("renv")
+```
+
 # Load Data
 
 ``` r
@@ -77,7 +83,7 @@ dplyr::glimpse(added_per_month)
 ggplot2::ggplot(added_per_month) +
   # 高さ一定のタイルを使い色で件数を表現
   ggplot2::geom_tile(
-    ggplot2::aes(x = month_added, y = 1, fill = n, width = 30)
+    ggplot2::aes(x = month_added, y = 1, fill = n, width = 50)
   ) +
   # タイルの色を調整
   ggplot2::scale_fill_gradient(
