@@ -1,0 +1,58 @@
+---
+title: "Netflix Titles"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+board <- pins::board_url(
+  c(netflix = 'https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-04-20/netflix_titles.csv')
+)
+netflix <- readr::read_csv(pins::pin_download(board, 'netflix'))
+```
+
+```{r}
+dplyr::glimpse(netflix)
+```
+
+# Number of New Titles Per Month
+
+```{r}
+added_per_month <- netflix |>
+  dplyr::group_by(title) |>
+  dplyr::slice(1L) |>
+  dplyr::ungroup() |>
+  dplyr::transmute(
+    date_added = lubridate::mdy(date_added),
+    year = lubridate::year(date_added),
+    month = lubridate::month(date_added)
+  ) |>
+  dplyr::group_by(year, month) |>
+  dplyr::count() |>
+  dplyr::ungroup() |>
+  dplyr::transmute(t = lubridate::make_date(year, month), n)
+
+dplyr::glimpse(added_per_month)
+```
+
+```{r, fig.width=16/3, fig.height=9/3, warning=FALSE}
+ggplot2::ggplot(added_per_month) +
+  ggplot2::geom_col(ggplot2::aes(x = t, y = 1, fill = n)) +
+  ggplot2::annotate(
+    "text", label = "NETFLIX", color = "white", size = 20,
+    x = as.Date(-Inf), y = Inf, hjust = -0.01, vjust = 1.1
+  ) +
+  ggplot2::labs(title = "Number of New Titles Per Month") +
+  ggplot2::coord_cartesian(expand = FALSE) +
+  ggplot2::scale_fill_gradient(
+    low = "black", high = "red", limits = c(0L, NA_integer_)
+  ) +
+  ggplot2::theme_minimal() +
+  ggplot2::theme(
+    panel.background = ggplot2::element_rect(fill = "black"),
+    panel.grid = ggplot2::element_blank(),
+    axis.title = ggplot2::element_blank(),
+    axis.text.y = ggplot2::element_blank()
+  )
+```
+
+  
