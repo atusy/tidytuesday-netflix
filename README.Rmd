@@ -12,14 +12,20 @@ output: github_document
 
 # Load Data
 
-```{r setup, include=FALSE}
-board <- pins::board_url(
-  c(netflix = 'https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-04-20/netflix_titles.csv')
+```{r setup}
+# CSVファイルのダウンロードと読み込み
+# pinsパッケージを使ってキャッシュしておく
+csv <- file.path(
+  "https://raw.githubusercontent.com/rfordatascience/tidytuesday",
+  "master/data/2021/2021-04-20/netflix_titles.csv"
 )
-netflix <- readr::read_csv(pins::pin_download(board, 'netflix'))
-```
+board <- pins::board_url(c(netflix = csv))
+netflix <- readr::read_csv(
+  pins::pin_download(board, 'netflix'),
+  show_col_types = FALSE
+)
 
-```{r}
+# 確認
 dplyr::glimpse(netflix)
 ```
 

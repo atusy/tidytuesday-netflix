@@ -11,6 +11,19 @@ Netflix Titles
 # Load Data
 
 ``` r
+# CSVファイルのダウンロードと読み込み
+# pinsパッケージを使ってキャッシュしておく
+csv <- file.path(
+  "https://raw.githubusercontent.com/rfordatascience/tidytuesday",
+  "master/data/2021/2021-04-20/netflix_titles.csv"
+)
+board <- pins::board_url(c(netflix = csv))
+netflix <- readr::read_csv(
+  pins::pin_download(board, 'netflix'),
+  show_col_types = FALSE
+)
+
+# 確認
 dplyr::glimpse(netflix)
 ```
 
