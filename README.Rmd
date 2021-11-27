@@ -3,6 +3,8 @@ title: "Netflix Titles"
 output: github_document
 ---
 
+# Load Data
+
 ```{r setup, include=FALSE}
 board <- pins::board_url(
   c(netflix = 'https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-04-20/netflix_titles.csv')
@@ -16,42 +18,62 @@ dplyr::glimpse(netflix)
 
 # Number of New Titles Per Month
 
+## 集計
+
 ```{r}
 added_per_month <- netflix |>
-  dplyr::group_by(title) |>
-  dplyr::slice(1L) |>
-  dplyr::ungroup() |>
+  # titleとdate_addedのみ使用。後者は文字列なのでDateに変換
   dplyr::transmute(
-    date_added = lubridate::mdy(date_added),
+    title,
+    date_added = lubridate::mdy(date_added)
+  ) |>
+  # titleごとにdate_addedの最小値を集計
+  dplyr::group_by(title) |>
+  dplyr::summarize(date_added = min(date_added)) |>
+  # 月次の追加件数を知りたいので、追加した年と月を抽出
+  dplyr::transmute(
     year = lubridate::year(date_added),
     month = lubridate::month(date_added)
   ) |>
+  # 年と年ごとに行数をカウント
   dplyr::group_by(year, month) |>
   dplyr::count() |>
   dplyr::ungroup() |>
-  dplyr::transmute(t = lubridate::make_date(year, month), n)
+  # 可視化用にyearとmonthを使ってDate化しておく
+  dplyr::transmute(ymd = lubridate::make_date(year, month), n)
 
 dplyr::glimpse(added_per_month)
 ```
 
+## 可視化
+
 ```{r, fig.width=16/3, fig.height=9/3, warning=FALSE}
 ggplot2::ggplot(added_per_month) +
-  ggplot2::geom_col(ggplot2::aes(x = t, y = 1, fill = n)) +
+  # 高さ1の棒グラフを使い色で件数を表現
+  ggplot2::geom_col(ggplot2::aes(x = ymd, y = 1, fill = n)) +
+  # NETFLIXと白字で記述
   ggplot2::annotate(
     "text", label = "NETFLIX", color = "white", size = 20,
     x = as.Date(-Inf), y = Inf, hjust = -0.01, vjust = 1.1
   ) +
-  ggplot2::labs(title = "Number of New Titles Per Month") +
-  ggplot2::coord_cartesian(expand = FALSE) +
+  # 棒グラフの色を調整
   ggplot2::scale_fill_gradient(
-    low = "black", high = "red", limits = c(0L, NA_integer_)
+    name = NULL,                 # 凡例のタイトルは不要
+    low = "black", high = "red", # NETFLIXカラーにする
+    limits = c(0L, NA_integer_)  # 最小値を0に固定、最大値をデータから決定
   ) +
+  # タイトル追加
+  ggplot2::labs(title = "Number of New Titles Per Month") +
+  # 見た目をシンプルにする
+  ggplot2::coord_cartesian(expand = FALSE) + # 不要な余白を除去
   ggplot2::theme_minimal() +
   ggplot2::theme(
-    panel.background = ggplot2::element_rect(fill = "black"),
-    panel.grid = ggplot2::element_blank(),
-    axis.title = ggplot2::element_blank(),
-    axis.text.y = ggplot2::element_blank()
+    panel.background = ggplot2::element_rect(
+      fill = "black" # 0件の部分は棒がないので黒塗り
+    ),
+    panel.grid = ggplot2::element_blank(), # 目盛線不要
+    axis.title = ggplot2::element_blank(), # 軸タイトル不要
+    axis.text.y = ggplot2::element_blank() # 今回はy軸の値に意味がないので省略
   )
 ```
 
