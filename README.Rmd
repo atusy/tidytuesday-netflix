@@ -35,25 +35,18 @@ dplyr::glimpse(netflix)
 
 ```{r}
 added_per_month <- netflix |>
-  # titleとdate_addedのみ使用。後者は文字列なのでDateに変換
+  # タイトルと追加した月を抽出
   dplyr::transmute(
     title,
-    date_added = lubridate::mdy(date_added)
+    month_added = date_added |>
+      lubridate::mdy() |>                   # 文字列をDateに変換
+      lubridate::floor_date(unit = "month") # 月ごとに集計するため日付を1日に変更
   ) |>
-  # titleごとにdate_addedの最小値を集計
+  # titleごとにmonth_addedの最小値を集計
   dplyr::group_by(title) |>
-  dplyr::summarize(date_added = min(date_added)) |>
-  # 月次の追加件数を知りたいので、追加した年と月を抽出
-  dplyr::transmute(
-    year = lubridate::year(date_added),
-    month = lubridate::month(date_added)
-  ) |>
-  # 年と年ごとに行数をカウント
-  dplyr::group_by(year, month) |>
-  dplyr::count() |>
-  dplyr::ungroup() |>
-  # 可視化用にyearとmonthを使ってDate化しておく
-  dplyr::transmute(ymd = lubridate::make_date(year, month), n)
+  dplyr::summarize(month_added = min(month_added)) |>
+  # 月ごとに行数をカウント
+  dplyr::count(month_added)
 
 dplyr::glimpse(added_per_month)
 ```
@@ -63,7 +56,7 @@ dplyr::glimpse(added_per_month)
 ```{r monthly, fig.width=16/3, fig.height=9/3, warning=FALSE}
 ggplot2::ggplot(added_per_month) +
   # 高さ1の棒グラフを使い色で件数を表現
-  ggplot2::geom_col(ggplot2::aes(x = ymd, y = 1, fill = n)) +
+  ggplot2::geom_col(ggplot2::aes(x = month_added, y = 1, fill = n)) +
   # NETFLIXと白字で記述
   ggplot2::annotate(
     "text", label = "NETFLIX", color = "white", size = 20,
