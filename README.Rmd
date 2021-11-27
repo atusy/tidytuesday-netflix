@@ -77,4 +77,76 @@ ggplot2::ggplot(added_per_month) +
   )
 ```
 
-  
+# Number of Titles Per Country
+
+## 集計
+
+```{r}
+titles_per_country <- netflix |>
+  # タイトルと国ごとに1行ずつ抽出
+  dplyr::group_by(title, country) |>
+  dplyr::slice(1L) |>
+  # 国ごとに行数をカウント
+  dplyr::group_by(country) |>
+  dplyr::count()
+
+dplyr::glimpse(titles_per_country)
+```
+
+`country`列には`"Argentina, Brazil, France, Poland, Germany, Denmark"`などと、カンマ区切りで複数の国が記録されている点に注意。
+
+## 地図データとのマージ
+
+地図データ読み込み。
+
+`region`列が集計結果の`country`列に相当する。
+
+```{r}
+world <- ggplot2::map_data("world")
+dplyr::glimpse(world)
+```
+
+集計結果と地図データのマージ。
+
+地図に合わせて集計結果の`country`列を整形し、再集計してからマージする。
+
+```{r}
+titles_per_region <- titles_per_country |>
+  # country列をregion列に改名
+  dplyr::rename(region = country) |>
+  # 1行あたりにカンマ区切りで複数の国名が入っているので行方向に分割
+  tidyr::separate_rows("region", sep = ", ") |>
+  # 分割で生じた国名の重複を解消するため、国名ごとにタイトル数の和を集計
+  dplyr::group_by(region) |>
+  dplyr::summarize(n = sum(n)) |>
+  # 地図データとマージ
+  dplyr::right_join(world, by = "region")
+
+dplyr::glimpse(titles_per_region)
+```
+
+## 可視化
+
+```{r, fig.width=16/3, fig.height=9/3, warning=FALSE}
+ggplot2::ggplot(titles_per_region) +
+  # 地図の表示。国をタイトル数で塗り潰す
+  ggplot2::geom_map(
+    ggplot2::aes(long, lat, map_id = region, fill = n),
+    map = world
+  ) +
+  # 国ごとの色の塗り方を調整
+  ggplot2::scale_fill_gradient(
+    name = NULL,                 # 凡例のタイトルは不要
+    low = "black", high = "red", # NETFLIXカラー化
+    trans = "log",               # 件数のレンジが広いので対数をとる
+    limits = c(1L, NA_integer_), # 最小値を1件にする
+    label = round                # 凡例の数値を整数に丸める
+  ) +
+  # タイトルの追加
+  ggplot2::labs(title = "NETFLIX: Number of Titles Per Country") +
+  # 地図なので縦横比を揃える
+  ggplot2::coord_equal() +
+  # 見た目をシンプルにする
+  ggplot2::theme_void()
+```
+
