@@ -47,7 +47,7 @@ dplyr::glimpse(added_per_month)
 
 ## 可視化
 
-```{r, fig.width=16/3, fig.height=9/3, warning=FALSE}
+```{r monthly, fig.width=16/3, fig.height=9/3, warning=FALSE}
 ggplot2::ggplot(added_per_month) +
   # 高さ1の棒グラフを使い色で件数を表現
   ggplot2::geom_col(ggplot2::aes(x = ymd, y = 1, fill = n)) +
@@ -127,7 +127,7 @@ dplyr::glimpse(titles_per_region)
 
 ## 可視化
 
-```{r, fig.width=16/3, fig.height=9/3, warning=FALSE}
+```{r worldmap, fig.width=16/3, fig.height=9/3, warning=FALSE}
 ggplot2::ggplot(titles_per_region) +
   # 地図の表示。国をタイトル数で塗り潰す
   ggplot2::geom_map(
