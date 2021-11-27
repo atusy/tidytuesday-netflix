@@ -81,9 +81,9 @@ dplyr::glimpse(added_per_month)
 
 ``` r
 ggplot2::ggplot(added_per_month) +
-  # 高さ一定のタイルを使い色で件数を表現
+  # 高さ一定のタイルを使い色で件数を表現。幅は隙間が生じないよう調整
   ggplot2::geom_tile(
-    ggplot2::aes(x = month_added, y = 1, fill = n, width = 50)
+    ggplot2::aes(x = month_added, y = 1, fill = n, width = 33)
   ) +
   # タイルの色を調整
   ggplot2::scale_fill_gradient(
@@ -91,6 +91,8 @@ ggplot2::ggplot(added_per_month) +
     low = "black", high = "red", # NETFLIXカラーにする
     limits = c(0L, NA_integer_)  # 最小値を0に固定、最大値をデータから決定
   ) +
+  # 1年ごとに目盛を追加
+  ggplot2::scale_x_date(date_breaks = "1 years", date_labels = "%Y") +
   # NETFLIXと白字で記述
   ggplot2::annotate(
     "text", label = "NETFLIX", color = "white", size = 20,
@@ -103,7 +105,7 @@ ggplot2::ggplot(added_per_month) +
   ggplot2::theme_minimal() +
   ggplot2::theme(
     panel.background = ggplot2::element_rect(
-      fill = "black" # 0件の部分は棒がないので黒塗り
+      fill = "black" # 0件の部分はタイルがないので黒塗り
     ),
     panel.grid = ggplot2::element_blank(), # 目盛線不要
     axis.title = ggplot2::element_blank(), # 軸タイトル不要
