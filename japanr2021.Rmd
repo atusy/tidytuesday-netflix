@@ -1,0 +1,98 @@
+---
+title: "Tidy Tuesday (ver. Japan.R 2021) "
+output: github_document
+---
+
+- tidyverseのパッケージ群を用いたデータ処理や可視化に慣れ親しむイベント……のJapan.R版
+- [本家](https://twitter.com/hashtag/tidytuesday)では週替わりのデータをテーマに参加者各位がTwitter上で成果を共有中
+- 今回はJapan.R 2021運営メンバーで企画し、グループワークとして実施
+
+参加登録は <https://japanr.connpass.com/event/230722/> から。
+
+## お題: Netflix titles
+
+Zoomのブレイクアウトルームで仲間と共に分析しよう
+
+- 過去にNetflixで公開されたMovieやTV Showに関するデータセット
+- ネタに困ったら[Issue](https://github.com/atusy/tidytuesday-netflix/labels/Tidy%20Tuesday)へGO!
+- 成果はTwitter [#JapanR](https://twitter.com/hashtag/JapanR?f=live) で共有しよう
+    - 誹謗中傷やハラスメントはダメゼッタイ
+
+```{r, echo=FALSE}
+# CSVファイルのダウンロードと読み込み
+# pinsパッケージを使ってキャッシュしておく
+csv <- file.path(
+  "https://raw.githubusercontent.com/rfordatascience/tidytuesday",
+  "master/data/2021/2021-04-20/netflix_titles.csv"
+)
+board <- pins::board_url(c(netflix = csv))
+netflix <- readr::read_csv(
+  pins::pin_download(board, 'netflix'),
+  show_col_types = FALSE
+)
+
+netflix_types <- netflix |>
+  purrr::map_chr(typeof) |>
+  tibble::enframe("列名", "型")
+
+netflix_desc <- c(
+  show_id = "固有ID。行ごとに値が異なる",
+  type = '"Movie"または"TV Show"',
+  title = "タイトル",
+  director = "監督",
+  cast = "出演者（カンマ区切り）",
+  country = "国（カンマ区切り）",
+  date_added = "Netflixに追加された日",
+  release_year = "実際の公開年",
+  rating = "対象年齢のレーティング（[参考](https://www.primevideo.com/help/ref=atv_hp_nd_nav?language=ja_JP&nodeId=GFGQU3WYEG6FSJFJ)）",
+  duration = "長さ・期間など",
+  listed_in = "ジャンル（カンマ区切り）",
+  description = "概要"
+) |>
+  tibble::enframe("列名", "概要")
+
+if (!setequal(netflix_types[["列名"]], netflix_desc[["列名"]])) {
+  stop("列名が不一致")
+}
+
+netflix_types |>
+  dplyr::left_join(netflix_desc, "列名") |>
+  knitr::kable()
+```
+### 入手方法
+
+```{r, eval=FALSE}
+readr::read_csv(
+  file.path(
+    "https://raw.githubusercontent.com/rfordatascience/tidytuesday",
+    "master/data/2021/2021-04-20/netflix_titles.csv"
+  ),
+  show_col_types = FALSE
+)
+```
+
+### 分析例
+
+#### Twitter
+
+Search: [#tidytuesday netflix](https://twitter.com/search?q=%23tidytuesday%20netflix&src=typed_query&f=top)
+
+#### By Atusy
+
+コードは [README.md](README.md) を参照
+
+```{r, echo=FALSE}
+"README_files/figure-gfm" |>
+  fs::dir_ls(regexp = ".*[.]png$") |>
+  knitr::include_graphics()
+```
+
+## ENJOY!
+
+終了後はJapan.R本編開始までDiscordで感想戦しましょう！
+
+
+
+
+
+
