@@ -9,6 +9,12 @@ output: github_document
 
 参加登録は <https://japanr.connpass.com/event/230722/> から。
 
+
+## 趣旨
+
+- 参加型企画でわいわい楽しくやろう
+- Tidy Tuesdayを体験してJapanRを通じて世界を意識してみよう
+
 ## お題: Netflix titles
 
 Zoomのブレイクアウトルームで仲間と共に分析しよう
