@@ -7,10 +7,13 @@ Tidy Tuesday (ver. Japan.R 2021)
 
 参加登録は <https://japanr.connpass.com/event/230722/> から。
 
+登録済みの方は事前アンケートにご協力お願いします。  
+上記URLより「参加者への情報」の項をご確認ください。
+
 ## 趣旨
 
   - 参加型企画でわいわい楽しくやろう
-  - Tidy Tuesdayを体験してJapanRを通じて世界を意識してみよう
+  - 本家Tidy Tuesdayに参加するきっかけになるかも？
 
 ## お題: Netflix titles
 
